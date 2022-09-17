@@ -1,7 +1,7 @@
 package blokd.block
 
 import blokd.extensions.hash
-import blokd.transactions.BlockData
+import blokd.actions.BlockData
 import java.security.SignatureException
 import java.time.Instant
 

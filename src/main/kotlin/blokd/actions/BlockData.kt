@@ -1,4 +1,4 @@
-package blokd.transactions
+package blokd.actions
 
 import java.security.PrivateKey
 

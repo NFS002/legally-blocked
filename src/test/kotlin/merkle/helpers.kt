@@ -3,7 +3,7 @@ package blokd.merkle
 import blokd.core.BlockChain
 import blokd.core.assets.Token
 import blokd.newKeypair
-import blokd.transactions.Transaction
+import blokd.actions.Transaction
 import blokd.wallet.Wallet
 import java.util.*
 

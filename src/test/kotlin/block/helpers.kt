@@ -2,7 +2,7 @@ package blokd.block
 
 import blokd.core.BlockChain
 import blokd.core.assets.Asset
-import blokd.transactions.Registration
+import blokd.actions.Registration
 import java.security.PrivateKey
 import java.security.PublicKey
 

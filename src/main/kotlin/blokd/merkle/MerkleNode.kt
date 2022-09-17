@@ -3,7 +3,7 @@ package blokd.merkle
 import blokd.extensions.hash
 import blokd.extensions.then
 import blokd.extensions.xor
-import blokd.transactions.Transaction
+import blokd.actions.Transaction
 
 class MerkleNode() {
 

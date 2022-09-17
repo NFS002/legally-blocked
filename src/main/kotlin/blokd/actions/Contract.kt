@@ -1,4 +1,4 @@
-package blokd.transactions
+package blokd.actions
 
 import blokd.extensions.hash
 import blokd.extensions.sign
@@ -8,13 +8,13 @@ import java.security.PublicKey
 import java.time.Instant
 import java.util.UUID
 
-class Contract(val owner: PublicKey, val text: String, val potentialRecipents: List<PublicKey>) : BlockData {
+class Contract(val owner: PublicKey, val text: String, val intendedRecipent: PublicKey) : BlockData {
 
     val createdAt:Long = Instant.now().epochSecond
 
-    override var encoded = "$owner$text$createdAt$potentialRecipents".hash()
+    override var encoded = "$owner$text$createdAt$intendedRecipent".hash()
 
-    val contractId = UUID.fromString(this.encoded)
+    val contractId = UUID.randomUUID()
 
     override var signature = ByteArray(0)
 

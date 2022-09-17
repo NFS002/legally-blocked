@@ -1,7 +1,7 @@
 package blokd.merkle
 
 import blokd.core.BlockChain
-import blokd.transactions.Transaction
+import blokd.actions.Transaction
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

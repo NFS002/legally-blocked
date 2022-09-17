@@ -1,4 +1,4 @@
-package blokd.transactions
+package blokd.actions
 
 import blokd.core.assets.Asset
 import blokd.extensions.encodeToString
@@ -27,7 +27,6 @@ data class Transaction(val asset: Asset,
         }
 
     init {
-
         hash = "$encoded$salt".hash()
     }
 

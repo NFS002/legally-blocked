@@ -1,6 +1,6 @@
 package blokd.core.assets
 
-import blokd.transactions.Transaction
+import blokd.actions.Transaction
 import blokd.wallet.Wallet
 
 

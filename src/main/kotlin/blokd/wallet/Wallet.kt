@@ -2,7 +2,7 @@ package blokd.wallet
 
 import blokd.core.BlockChain
 import blokd.core.assets.Token
-import blokd.transactions.Transaction
+import blokd.actions.Transaction
 import java.security.PrivateKey
 import java.security.PublicKey
 

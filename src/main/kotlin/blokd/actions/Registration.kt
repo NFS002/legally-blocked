@@ -1,4 +1,4 @@
-package blokd.transactions
+package blokd.actions
 
 import blokd.core.BlockChain
 import blokd.core.assets.Asset

@@ -40,7 +40,7 @@ class BlockChainTest {
     @Test
     fun canRegisterAsset() {
         registerAsset(blockChain, asset, keyPair.public, keyPair.private)
-        assert(blockChain.hasRegistered(asset.name))
+        assert(blockChain.hasRegisteredAsset(asset.name))
     }
 
     /**
