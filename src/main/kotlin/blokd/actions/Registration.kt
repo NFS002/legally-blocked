@@ -8,9 +8,9 @@ import blokd.extensions.verifySignature
 import java.security.PrivateKey
 import java.security.PublicKey
 
-data class Registration(val blockChain: BlockChain, val asset:Asset, val registrar: PublicKey) : BlockData {
+data class Registration(val asset:Asset) : BlockData {
 
-    override val encoded: String = "${blockChain}-register-${asset.name}".hash()
+    override val encoded: String = "${asset.name}-registration".hash()
 
     override var signature: ByteArray = ByteArray(0)
 
@@ -19,7 +19,7 @@ data class Registration(val blockChain: BlockChain, val asset:Asset, val registr
         return this
     }
 
-    override fun validateSignature() : Boolean {
-        return encoded.verifySignature(registrar, signature)
+    override fun validateSignature(publicKey: PublicKey) : Boolean {
+        return encoded.verifySignature(publicKey, signature)
     }
 }

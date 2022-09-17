@@ -22,7 +22,7 @@ class WalletTest {
         blockChain = BlockChain()
         asset = Token()
         keyPair = newKeypair()
-        registerAsset(blockChain, asset, keyPair.public, keyPair.private)
+        registerAsset(blockChain, asset)
         wallet = Wallet(keyPair.public, keyPair.private, blockChain, asset as Token)
     }
 

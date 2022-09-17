@@ -39,18 +39,8 @@ class BlockChainTest {
      */
     @Test
     fun canRegisterAsset() {
-        registerAsset(blockChain, asset, keyPair.public, keyPair.private)
+        registerAsset(blockChain, asset)
         assert(blockChain.hasRegisteredAsset(asset.name))
-    }
-
-    /**
-     * Attempting to sign an asset registration with a different key than
-     * the pair from which it was initially created will cause an exception
-     */
-    @Test(expected = SignatureException::class)
-    fun invalidRegistrationSignature() {
-        val keyPair2 = newKeypair()
-        registerAsset(blockChain, asset, keyPair.public, keyPair2.private)
     }
 
     /**
@@ -68,7 +58,7 @@ class BlockChainTest {
      */
     @Test(expected = IllegalArgumentException::class)
     fun invalidMint() {
-        registerAsset(blockChain, asset, keyPair.public, keyPair.private)
+        registerAsset(blockChain, asset)
         val wallet = blockChain.newWallet(asset.name)
         deregisterAsset(blockChain, asset)
         blockChain.mintFromAsset(asset.name, wallet, amount = 10)
@@ -80,7 +70,7 @@ class BlockChainTest {
      */
     @Test(expected = IllegalArgumentException::class)
     fun invalidTransaction() {
-        registerAsset(blockChain, asset, keyPair.public, keyPair.private)
+        registerAsset(blockChain, asset)
         val wallet = blockChain.newWallet(asset.name)
         val wallet2 = blockChain.newWallet(asset.name)
         val tx0 = blockChain.mintFromAsset(asset.name, wallet, 10)
@@ -96,9 +86,9 @@ class BlockChainTest {
      */
     @Test(expected = IllegalArgumentException::class)
     fun invalidRegistration() {
-        registerAsset(blockChain, asset, asset.keyPair.public, asset.keyPair.private)
+        registerAsset(blockChain, asset)
         val asset2 = Token(name = asset.name)
-        registerAsset(blockChain, asset2, asset2.keyPair.public, asset2.keyPair.private)
+        registerAsset(blockChain, asset2)
 
     }
 
@@ -108,7 +98,7 @@ class BlockChainTest {
      */
     @Test()
     fun consecutiveBlocksValid() {
-        registerAsset(blockChain, asset, keyPair.public, keyPair.private)
+        registerAsset(blockChain, asset)
         val wallet = blockChain.newWallet(asset.name)
         val tx = blockChain.mintFromAsset(asset.name, wallet, 100)
         signAndMine(blockChain, transaction = tx, privateKey = asset.keyPair.private)
@@ -121,9 +111,9 @@ class BlockChainTest {
      */
     @Test()
     fun consecutiveBlocksValid2() {
-        registerAsset(blockChain, asset, asset.keyPair.public, asset.keyPair.private)
+        registerAsset(blockChain, asset)
         val asset2 = Token(name = "TestToken2")
-        registerAsset(blockChain, asset2, asset2.keyPair.public, asset2.keyPair.private)
+        registerAsset(blockChain, asset2)
         assert(blockChain.isValid())
     }
 
@@ -132,7 +122,7 @@ class BlockChainTest {
      */
     @Test()
     fun consecutiveBlocksInvalid() {
-        registerAsset(blockChain, asset, keyPair.public, keyPair.private)
+        registerAsset(blockChain, asset)
         val wallet = blockChain.newWallet(asset.name)
         val tx = blockChain.mintFromAsset(asset.name, wallet, 10)
         val tx2 = blockChain.mintFromAsset(asset.name, wallet, 10)

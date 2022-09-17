@@ -1,12 +1,12 @@
 package blokd.core
 
-import blokd.block.Block
-import blokd.core.assets.Asset
-import blokd.core.assets.Token
 import blokd.actions.Contract
 import blokd.actions.Registration
 import blokd.actions.SignedContract
 import blokd.actions.Transaction
+import blokd.block.Block
+import blokd.core.assets.Asset
+import blokd.core.assets.Token
 import blokd.extensions.then
 import blokd.wallet.Wallet
 import java.security.KeyPairGenerator
@@ -41,13 +41,13 @@ class BlockChain {
         }
     }
 
-    fun add(block: Block) : Block {
+    fun add(block: Block): Block {
         val minedBlock = mine(block)
         blocks.add(minedBlock)
         return minedBlock
     }
 
-    private fun mine(block: Block) : Block {
+    private fun mine(block: Block): Block {
         print("Mining: $block... ")
         block.doPow(this.prefix, this.difficulty)
         process(block)
@@ -61,33 +61,32 @@ class BlockChain {
     private fun process(block: Block) {
         // Consider it done ?
         for (blockData in block.blockData) {
-            if (blockData.validateSignature()) {
-                when (blockData) {
-                    is Registration -> {
-                        if (hasRegisteredAsset(blockData.asset.name)) {
-                            throw java.lang.IllegalArgumentException(
-                                "Attempting to register asset ${blockData.asset.name} which has already been registered"
-                            )
-                        }
-                        val asset = blockData.asset
-                        assets.put(asset.name, asset)
+            when (blockData) {
+                is Registration -> {
+                    if (hasRegisteredAsset(blockData.asset.name)) {
+                        throw java.lang.IllegalArgumentException(
+                            "Attempting to register asset ${blockData.asset.name} which has already been registered"
+                        )
                     }
-                    is Transaction -> {
-                        if (!hasRegisteredAsset(blockData.asset.name)) {
-                            throw java.lang.IllegalArgumentException(
-                                "Attempting to mine transaction for ${blockData.asset.name} which has not been registered"
-                            )
-                        }
+                    val asset = blockData.asset
+                    assets.put(asset.name, asset)
+                }
+                is Transaction -> {
+                    if (!hasRegisteredAsset(blockData.asset.name)) {
+                        throw java.lang.IllegalArgumentException(
+                            "Attempting to mine transaction for ${blockData.asset.name} which has not been registered"
+                        )
                     }
-                    is Contract -> registerContract(blockData)
-                    is SignedContract -> {
-                        val contractId = blockData.contractId
-                        (!hasRegisteredContract(contractId)).then {
-                            throw java.lang.IllegalArgumentException("Contract not registered")
-                        }
-                        (!blockData.validateSignature()).then {
-                            throw IllegalStateException("Contract signature is invalid")
-                        }
+                }
+                is Contract -> registerContract(blockData)
+                is SignedContract -> {
+                    val contractId = blockData.contractId
+                    val contract = this.contracts.getOrElse(contractId) {
+                        throw java.lang.IllegalArgumentException("Contract not registered")
+                    }
+
+                    (!blockData.validateSignature(contract.intendedRecipent)).then {
+                        throw IllegalStateException("Contract signature is invalid")
                     }
                 }
             }
@@ -110,11 +109,11 @@ class BlockChain {
         return Wallet(keyPair.public, keyPair.private, this, registeredAsset)
     }
 
-    fun createRegistration(asset: Asset, registrar: PublicKey) : Registration {
+    fun createRegistration(asset: Asset): Registration {
         if (hasRegisteredAsset(asset.name)) {
             throw java.lang.IllegalArgumentException("Name '${asset.name}' is already registered")
         }
-        return Registration(asset = asset, blockChain = this, registrar = registrar)
+        return Registration(asset = asset)
     }
 
     private fun registerContract(contract: Contract) {
@@ -147,9 +146,8 @@ class BlockChain {
 
     fun findSigned(contractId: String): SignedContract? {
         this.contracts.getOrElse(contractId) { throw IllegalStateException("Initial contract was never registered") }
-        this.blocks.forEach{block ->
-            block.blockData.forEach {
-                    blockData ->
+        this.blocks.forEach { block ->
+            block.blockData.forEach { blockData ->
                 when (blockData) {
                     is SignedContract -> {
                         (blockData.contractId == contractId).then {

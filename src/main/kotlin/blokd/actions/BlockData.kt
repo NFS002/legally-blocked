@@ -1,10 +1,11 @@
 package blokd.actions
 
 import java.security.PrivateKey
+import java.security.PublicKey
 
 sealed interface BlockData {
 
-    fun validateSignature() : Boolean
+    fun validateSignature(publicKey: PublicKey) : Boolean
 
     fun sign(privateKey: PrivateKey) : BlockData
 

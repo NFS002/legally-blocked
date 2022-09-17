@@ -26,10 +26,7 @@ data class Block(val previousHash: String) {
     }
 
     fun addBlockData(transaction: BlockData): Block {
-        if (transaction.validateSignature())
-            this.blockData.add(transaction)
-        else
-            throw SignatureException("Invalid registration signature")
+        this.blockData.add(transaction)
         return this
     }
 

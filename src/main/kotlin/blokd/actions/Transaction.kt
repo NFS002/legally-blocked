@@ -11,8 +11,7 @@ import java.security.PublicKey
 data class Transaction(val asset: Asset,
                        val sender: PublicKey,
                        val recipient: PublicKey,
-                       val amount: Int,
-                       var hash: String = "") : BlockData {
+                       val amount: Int) : BlockData {
 
     override var signature: ByteArray = ByteArray(0)
 
@@ -26,16 +25,19 @@ data class Transaction(val asset: Asset,
             return field
         }
 
-    init {
-        hash = "$encoded$salt".hash()
-    }
+    val hash = "$encoded$salt".hash()
 
     override fun sign(privateKey: PrivateKey) : Transaction {
         signature = encoded.sign(privateKey)
         return this
     }
 
-    override fun validateSignature() : Boolean {
-        return encoded.verifySignature(sender, signature)
+    override fun validateSignature(publicKey: PublicKey) : Boolean {
+        when (publicKey.equals(sender)) {
+            true -> {
+                return encoded.verifySignature(publicKey, signature)
+            }
+            else -> throw IllegalStateException("Transaction signatyre must be verified as the original sender")
+        }
     }
 }

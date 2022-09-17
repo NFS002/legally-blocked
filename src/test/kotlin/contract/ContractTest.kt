@@ -35,13 +35,13 @@ class ContractTest {
         val keyPair1 = newKeypair()
         val keyPair2 = newKeypair()
         val contractText = "This is a very serious contract"
-        val contract = Contract(owner = keyPair1.public, text = contractText, intendedRecipent = keyPair2.public )
+        val contract = Contract(text = contractText, intendedRecipent = keyPair2.public )
         contract.sign(keyPair1.private)
         val block1 = Block(previousHash = "")
         block1.addBlockData(contract)
         blockChain.add(block1)
 
-        val signedContract = SignedContract(blockChain, contract.contractId.toString())
+        val signedContract = SignedContract(contract.contractId.toString())
         signedContract.sign(keyPair2.private)
         val block2 = Block(block1.header)
         block2.addBlockData(signedContract)
@@ -57,7 +57,7 @@ class ContractTest {
         val keyPair1 = newKeypair()
         val keyPair2 = newKeypair()
         val contractText = "This is a very serious contract"
-        val contract = Contract(owner = keyPair1.public, text = contractText, intendedRecipent = keyPair2.public )
+        val contract = Contract(text = contractText, intendedRecipent = keyPair2.public )
         contract.sign(keyPair1.private)
         val block1 = Block(previousHash = "")
         block1.addBlockData(contract)
@@ -74,14 +74,14 @@ class ContractTest {
         val keyPair1 = newKeypair()
         val keyPair2 = newKeypair()
         val contractText = "This is a very serious contract"
-        val contract = Contract(owner = keyPair1.public, text = contractText, intendedRecipent = keyPair2.public )
+        val contract = Contract(text = contractText, intendedRecipent = keyPair2.public )
         contract.sign(keyPair1.private)
         val block1 = Block(previousHash = "")
         block1.addBlockData(contract)
         //blockChain.add(block1)
 
         val contractId = contract.contractId.toString().plus("-non-existent")
-        val signedContract = SignedContract(blockChain, contractId)
+        val signedContract = SignedContract(contractId)
         signedContract.sign(keyPair2.private)
         val block2 = Block(block1.header)
         block2.addBlockData(signedContract)

@@ -28,7 +28,7 @@ class BlockTest {
     @Test
     fun calculateHash() {
         val hash0 = block.header
-        registerAsset(blockChain, block, asset, asset.keyPair.public, asset.keyPair.private)
+        registerAsset(blockChain, block, asset, asset.keyPair.private)
         val hash1 = block.header
         assertNotEquals(hash0, hash1)
     }
