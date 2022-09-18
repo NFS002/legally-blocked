@@ -21,6 +21,8 @@ class BlockChain {
     val assets: HashMap<String, Asset> = hashMapOf()
     val contracts: HashMap<String, Contract> = hashMapOf()
 
+
+
     fun isValid(): Boolean {
         when {
             blocks.isEmpty() -> return true

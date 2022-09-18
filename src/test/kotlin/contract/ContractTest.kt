@@ -8,84 +8,100 @@ import blokd.actions.SignedContract
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import java.security.KeyPair
 import kotlin.test.expect
 
 class ContractTest {
 
+    lateinit var blockChain: BlockChain
+    lateinit var keyPairs: List<KeyPair>
+
     @Before
     fun before() {
-
+        blockChain = BlockChain()
+        keyPairs = (1..10).map { newKeypair() }
     }
 
-    /* Happy contract journey
-    * User A
-            * Create contract
-            * Sign contract
-            * Register contract
-    * User B
-            * Gets contract
-            * Signs contract
-            * Submits signed contract
-
-    Assert: contract is completed
+    /*
+    * Given:
+    *   contract 'c1'
+    *   user 'u1'
+    *   user 'u2'
+    * When:
+    *   'u1' creates 'c1' with intended recipient as 'u2'
+    *   'u1' signs 'c1'
+    *   'u1' registers 'c1'
+    *   'u2' signs contract 'c1' as 'sc1'
+    *   'u2' submits 'sc1'
+    * Then:
+    *   contract is completed
     * */
     @Test
-    fun contractJourney() {
-        val blockChain = BlockChain()
-        val keyPair1 = newKeypair()
-        val keyPair2 = newKeypair()
-        val contractText = "This is a very serious contract"
-        val contract = Contract(text = contractText, intendedRecipent = keyPair2.public )
-        contract.sign(keyPair1.private)
-        val block1 = Block(previousHash = "")
-        block1.addBlockData(contract)
-        blockChain.add(block1)
+    fun `Simple happy contract journey`() {
+        val contract = registerContract(blockChain, keyPairs[0].private, keyPairs[1].public)
 
-        val signedContract = SignedContract(contract.contractId.toString())
-        signedContract.sign(keyPair2.private)
-        val block2 = Block(block1.header)
-        block2.addBlockData(signedContract)
-        blockChain.add(block2)
+        signContract(blockChain, contract, keyPairs[1].private)
 
         Assert.assertTrue(complete(blockChain, contract))
     }
 
-    /* Sad contract journey - contract not signed */
+    /*
+    * Given:
+    *   contract 'c1'
+    *   user 'u1'
+    *   user 'u2'
+    * When:
+    *   'u1' creates 'c1' with intended recipient as 'u2'
+    *   'u1' signs 'c1'
+    *   'u1' registers 'c1'
+    * Then:
+    *   contract is not completed (because it was never signed by its intended recipient)
+    * */
     @Test
-    fun unsignedContract() {
-        val blockChain = BlockChain()
-        val keyPair1 = newKeypair()
-        val keyPair2 = newKeypair()
-        val contractText = "This is a very serious contract"
-        val contract = Contract(text = contractText, intendedRecipent = keyPair2.public )
-        contract.sign(keyPair1.private)
-        val block1 = Block(previousHash = "")
-        block1.addBlockData(contract)
-        blockChain.add(block1)
+    fun `Unhappy contract journey - contract not signed by recipient`() {
+        val contract = registerContract(blockChain, keyPairs[0].private, keyPairs[1].public)
 
         Assert.assertFalse(complete(blockChain, contract))
     }
 
 
-    /* Sad contract journey - non existent contract signed */
+    /*
+    * Given:
+    *   contract 'c1'
+    *   user 'u1'
+    *   user 'u2'
+    * When:
+    *   'u2' signs contract 'c1' as 'sc1'
+    *   'u2' submits 'sc1'
+    * Then:
+    *   contract is not completed (because it was signed but never initially registered)
+    * */
     @Test(expected = IllegalArgumentException::class)
-    fun nonexistentContract() {
-        val blockChain = BlockChain()
-        val keyPair1 = newKeypair()
-        val keyPair2 = newKeypair()
-        val contractText = "This is a very serious contract"
-        val contract = Contract(text = contractText, intendedRecipent = keyPair2.public )
-        contract.sign(keyPair1.private)
-        val block1 = Block(previousHash = "")
-        block1.addBlockData(contract)
-        //blockChain.add(block1)
+    fun `Unhappy contract journey - the signed contract was never initially registered`() {
+        val contract = Contract("This is a contract", keyPairs[1].public)
 
-        val contractId = contract.contractId.toString().plus("-non-existent")
-        val signedContract = SignedContract(contractId)
-        signedContract.sign(keyPair2.private)
-        val block2 = Block(block1.header)
-        block2.addBlockData(signedContract)
-        blockChain.add(block2)
+        signContract(blockChain, contract, keyPairs[1].private)
 
+    }
+
+    /*
+   * Given:
+   *   contract 'c1'
+   *   user 'u1'
+   *   user 'u2'
+   *   user 'u3'
+   * When:
+   *   'u1' creates 'c1' with intended recipient as 'u2'
+   *   'u1' signs 'c1'
+   *   'u1' registers 'c1'
+   *   'u3' signs contract 'c1' as 'sc1'
+   *   'u3' submits 'sc1'
+   * Then:
+   *   contract is not complete (as it was not signed by its itended recipient)
+   * */
+    @Test(expected = IllegalStateException::class)
+    fun `Sad contract journey - contract signed by another party than the intended recipient`() {
+        val contract = registerContract(blockChain, keyPairs[0].private, keyPairs[1].public)
+        signContract(blockChain, contract, keyPairs[3].private)
     }
 }
