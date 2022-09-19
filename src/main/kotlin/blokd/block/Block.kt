@@ -7,18 +7,14 @@ import java.time.Instant
 
 data class Block(val previousHash: String) {
 
-    var header: String
+    val header: String
+        get() = calculateHeader()
 
     var nonce: Long = 0
 
-    private val timestamp: Long
+    private val timestamp: Long = Instant.now().toEpochMilli()
 
     val blockData: MutableList<BlockData> = mutableListOf()
-
-    init {
-        timestamp = Instant.now().toEpochMilli()
-        header = calculateHeader()
-    }
 
     fun calculateHeader(): String {
         val dt = this.blockData.joinToString(separator = "") { it.encoded }
@@ -34,7 +30,6 @@ data class Block(val previousHash: String) {
         val target: String = prefix.repeat(difficulty)
         while (!this.header.startsWith(target)) {
             this.nonce += 1
-            header = calculateHeader()
         }
     }
 

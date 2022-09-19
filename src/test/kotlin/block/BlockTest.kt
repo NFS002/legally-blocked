@@ -1,10 +1,11 @@
 package blokd.block
 
+import blokd.contract.registerContract
 import blokd.core.BlockChain
-import blokd.core.assets.Asset
-import blokd.core.assets.Token
+import blokd.merkle.newKeypair
 import org.junit.Before
 import org.junit.Test
+import java.security.KeyPair
 import kotlin.test.assertNotEquals
 
 
@@ -12,24 +13,20 @@ class BlockTest {
 
     lateinit var block: Block
     lateinit var blockChain: BlockChain
-    lateinit var asset: Asset
+    lateinit var keyPairs: List<KeyPair>
 
     @Before()
     fun before() {
         blockChain = BlockChain()
-        asset = Token()
-        block = Block(previousHash = "")
+        keyPairs = (1..10).map { newKeypair() }
     }
 
-    /**
-     * The block hash will be recalculated after transactions
-     * are added and the block is finalised
-     */
+
     @Test
     fun calculateHash() {
-        val hash0 = block.header
-        registerAsset(blockChain, block, asset, asset.keyPair.private)
-        val hash1 = block.header
-        assertNotEquals(hash0, hash1)
+        repeat(2) { registerContract(blockChain, keyPairs[0], keyPairs[1].public) }
+        val block1Header = blockChain.blocks[0].header
+        val block2Header = blockChain.blocks[1].header
+        assertNotEquals(block1Header, block2Header)
     }
 }

@@ -3,7 +3,6 @@ package blokd.merkle
 import blokd.extensions.hash
 import blokd.extensions.then
 import blokd.extensions.xor
-import blokd.actions.Transaction
 
 class MerkleNode() {
 
@@ -135,8 +134,6 @@ class MerkleNode() {
 
     companion object {
 
-        /* Build a merkle tree from a list of transactions */
-        fun fromTransactions(transactions: List<Transaction>) = fromData(transactions.map { tx -> tx.hash })
 
         /* Build a merkle tree from a list of transaction hashes */
         fun fromData(transactions: List<String>): MerkleNode {

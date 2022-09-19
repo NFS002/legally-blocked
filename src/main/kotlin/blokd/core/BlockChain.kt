@@ -1,15 +1,9 @@
 package blokd.core
 
 import blokd.actions.Contract
-import blokd.actions.Registration
 import blokd.actions.SignedContract
-import blokd.actions.Transaction
 import blokd.block.Block
-import blokd.core.assets.Asset
-import blokd.core.assets.Token
 import blokd.extensions.then
-import blokd.wallet.Wallet
-import java.security.KeyPairGenerator
 import java.security.SignatureException
 
 class BlockChain {
@@ -18,8 +12,7 @@ class BlockChain {
     private val difficulty: Int = 2
     private val prefix: String = "0"
 
-    val assets: HashMap<String, Asset> = hashMapOf()
-    val contracts: HashMap<String, Contract> = hashMapOf()
+    private val contracts: HashMap<String, Contract> = hashMapOf()
 
 
     fun isValid(): Boolean {
@@ -63,22 +56,6 @@ class BlockChain {
         // Consider it done ?
         for (blockData in block.blockData) {
             when (blockData) {
-                is Registration -> {
-                    if (hasRegisteredAsset(blockData.asset.name)) {
-                        throw java.lang.IllegalArgumentException(
-                            "Attempting to register asset ${blockData.asset.name} which has already been registered"
-                        )
-                    }
-                    val asset = blockData.asset
-                    assets.put(asset.name, asset)
-                }
-                is Transaction -> {
-                    if (!hasRegisteredAsset(blockData.asset.name)) {
-                        throw java.lang.IllegalArgumentException(
-                            "Attempting to mine transaction for ${blockData.asset.name} which has not been registered"
-                        )
-                    }
-                }
                 is Contract -> registerContract(blockData)
                 is SignedContract -> {
                     val contractId = blockData.contractId
@@ -99,24 +76,6 @@ class BlockChain {
     }
 
 
-    fun newWallet(asset: String): Wallet {
-        val registeredAsset: Token = assets.get(asset) as? Token
-            ?: throw java.lang.IllegalArgumentException("Asset is not registered or is not a token")
-
-        val generator = KeyPairGenerator.getInstance("RSA")
-        generator.initialize(2048)
-        val keyPair = generator.generateKeyPair()
-
-        return Wallet(keyPair.public, keyPair.private, this, registeredAsset)
-    }
-
-    fun createRegistration(asset: Asset): Registration {
-        if (hasRegisteredAsset(asset.name)) {
-            throw java.lang.IllegalArgumentException("Name '${asset.name}' is already registered")
-        }
-        return Registration(asset = asset)
-    }
-
     private fun registerContract(contract: Contract) {
 
         val contractId = contract.id
@@ -129,24 +88,10 @@ class BlockChain {
             throw SignatureException("Contract was not signed by its initial owner")
         }
 
-        contracts.put(contractId, contract)
+        contracts[contractId] = contract
     }
 
-
-    fun mintFromAsset(name: String, to: Wallet, amount: Int): Transaction {
-        val token = assets.get(name) as? Token
-        if (token == null) {
-            throw java.lang.IllegalArgumentException("Asset does not exist or is not a token")
-        } else {
-            return token.mint(to, amount)
-        }
-    }
-
-    fun hasRegisteredAsset(name: String): Boolean {
-        return assets.containsKey(name)
-    }
-
-    fun hasRegisteredContract(contractId: String): Boolean {
+    private fun hasRegisteredContract(contractId: String): Boolean {
         return this.contracts.containsKey(contractId)
     }
 

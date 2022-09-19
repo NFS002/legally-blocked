@@ -1,8 +1,8 @@
 package blokd.contract
 
 import blokd.core.BlockChain
-import blokd.newKeypair
 import blokd.actions.Contract
+import blokd.merkle.newKeypair
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

@@ -1,7 +1,8 @@
 package blokd.merkle
 
+import blokd.actions.Contract
 import blokd.core.BlockChain
-import blokd.actions.Transaction
+import blokd.extensions.hash
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -12,15 +13,14 @@ class MerkleTest {
 
     lateinit var merkleTree: MerkleNode
 
-    lateinit var transactions: List<Transaction>
+    lateinit var contracts: List<Contract>
 
     @Before
     fun setup() {
-        val blockChain = BlockChain()
-        transactions = (1..15).map {
-            toTransaction(blockChain, it)
+        contracts = (1..15).map {
+            randomContract()
         }
-        merkleTree = MerkleNode.fromTransactions(transactions)
+        merkleTree = MerkleNode.fromData(contracts.map { c -> c.encoded })
     }
 
     @Test
@@ -34,11 +34,11 @@ class MerkleTest {
     * empty */
     @Test
     fun merkleProof_true() {
-        Assertions.assertAll(transactions.mapIndexed { idx, tx ->
+        Assertions.assertAll(contracts.mapIndexed { idx, c ->
             Executable {
-                merkleTree.findProof(tx.hash)?.let {
+                merkleTree.findProof(c.encoded)?.let { node ->
                     Assertions.assertTrue(
-                        isValid(it),
+                        isValid(node),
                         "Failed at index ${idx}, tx found but tree was invalid"
                     )
                 }
