@@ -1,6 +1,5 @@
 package blokd.contract
 
-import blokd.core.BlockChain
 import blokd.actions.Contract
 import blokd.merkle.newKeypair
 import org.junit.Assert
@@ -11,12 +10,10 @@ import java.security.SignatureException
 
 class ContractTest {
 
-    lateinit var blockChain: BlockChain
     lateinit var keyPairs: List<KeyPair>
 
     @Before
     fun before() {
-        blockChain = BlockChain()
         keyPairs = (1..10).map { newKeypair() }
     }
 
@@ -36,11 +33,11 @@ class ContractTest {
     * */
     @Test
     fun `Simple happy contract journey`() {
-        val contract = registerContract(blockChain, keyPairs[0], keyPairs[1].public)
+        val contract = registerContract(keyPairs[0], keyPairs[1].public)
 
-        signContract(blockChain, contract, keyPairs[1].private)
+        signContract(contract, keyPairs[1].private)
 
-        Assert.assertTrue(complete(blockChain, contract))
+        Assert.assertTrue(complete(contract))
     }
 
     /*
@@ -60,13 +57,13 @@ class ContractTest {
     * */
     @Test
     fun `Happy contract journey - contract signed 10 blocks later`() {
-        val contract = registerContract(blockChain, keyPairs[0], keyPairs[1].public)
+        val contract = registerContract(keyPairs[0], keyPairs[1].public)
 
-        repeat(10) { emptyBlock(blockChain) }
+        repeat(10) { emptyBlock() }
 
-        signContract(blockChain, contract, keyPairs[1].private)
+        signContract(contract, keyPairs[1].private)
 
-        Assert.assertTrue(complete(blockChain, contract))
+        Assert.assertTrue(complete(contract))
     }
 
     /*
@@ -90,15 +87,15 @@ class ContractTest {
    * */
     @Test
     fun `Happy journey - signed twice - firstly incorrect recipient, then correct recipient`() {
-        val contract = registerContract(blockChain, keyPairs[0], keyPairs[1].public)
+        val contract = registerContract(keyPairs[0], keyPairs[1].public)
 
         runCatching {
-            signContract(blockChain, contract, keyPairs[2].private)
+            signContract(contract, keyPairs[2].private)
         }
-        signContract(blockChain, contract, keyPairs[1].private)
+        signContract(contract, keyPairs[1].private)
 
 
-        Assert.assertTrue(complete(blockChain, contract))
+        Assert.assertTrue(complete(contract))
     }
 
 
@@ -125,13 +122,13 @@ class ContractTest {
     * */
     @Test
     fun `Two contracts - one happy and one sad`() {
-        val contract1 = registerContract(blockChain, keyPairs[0], keyPairs[1].public)
-        val contract2 = registerContract(blockChain, keyPairs[0], keyPairs[2].public)
+        val contract1 = registerContract(keyPairs[0], keyPairs[1].public)
+        val contract2 = registerContract(keyPairs[0], keyPairs[2].public)
 
-        signContract(blockChain, contract2, keyPairs[2].private)
+        signContract(contract2, keyPairs[2].private)
 
-        Assert.assertFalse(complete(blockChain, contract1))
-        Assert.assertTrue(complete(blockChain, contract2))
+        Assert.assertFalse(complete(contract1))
+        Assert.assertTrue(complete(contract2))
     }
 
     /*
@@ -147,7 +144,7 @@ class ContractTest {
     * */
     @Test(expected = SignatureException::class)
     fun `Unhappy contract journey - Contract not signed by its creator when it is registered`() {
-        registerContract(blockChain, keyPairs[0], keyPairs[1].public, sign = false)
+        registerContract(keyPairs[0], keyPairs[1].public, sign = false)
     }
 
     /*
@@ -164,9 +161,9 @@ class ContractTest {
     * */
     @Test
     fun `Unhappy contract journey - contract not signed by recipient`() {
-        val contract = registerContract(blockChain, keyPairs[0], keyPairs[1].public)
+        val contract = registerContract(keyPairs[0], keyPairs[1].public)
 
-        Assert.assertFalse(complete(blockChain, contract))
+        Assert.assertFalse(complete(contract))
     }
 
     /*
@@ -184,7 +181,7 @@ class ContractTest {
     fun `Unhappy contract journey - the signed contract was never initially registered`() {
         val contract = Contract("This is a contract", keyPairs[1].public, keyPairs[0].public)
 
-        signContract(blockChain, contract, keyPairs[1].private)
+        signContract(contract, keyPairs[1].private)
 
     }
 
@@ -205,7 +202,7 @@ class ContractTest {
    * */
     @Test(expected = SignatureException::class)
     fun `Sad contract journey - contract signed by another party than the intended recipient`() {
-        val contract = registerContract(blockChain, keyPairs[0], keyPairs[1].public)
-        signContract(blockChain, contract, keyPairs[3].private)
+        val contract = registerContract(keyPairs[0], keyPairs[1].public)
+        signContract(contract, keyPairs[3].private)
     }
 }

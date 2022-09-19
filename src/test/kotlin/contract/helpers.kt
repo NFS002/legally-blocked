@@ -10,37 +10,37 @@ import java.security.KeyPair
 import java.security.PrivateKey
 import java.security.PublicKey
 
-fun complete(blockChain: BlockChain, contract: Contract) : Boolean {
+fun complete(contract: Contract) : Boolean {
     val contractId = contract.id
-    blockChain.findSigned(contractId)?.let {
-        return contract.validateSignature(contract.owner) && blockChain.isValid()
+    BlockChain.findSigned(contractId)?.let {
+        return contract.validateSignature(contract.owner) && BlockChain.isValid()
     }
     return false
 }
 
-fun emptyBlock(blockChain: BlockChain) {
-    val prevHash = blockChain.getPreviousBlock()?.header ?: ""
+fun emptyBlock() {
+    val prevHash = BlockChain.getPreviousBlock()?.header ?: ""
     val block = Block(previousHash = prevHash)
-    blockChain.add(block)
+    BlockChain.add(block)
 }
 
-fun registerContract(blockChain: BlockChain, owner: KeyPair, intendedRecipient: PublicKey, sign:Boolean = true): Contract {
+fun registerContract(owner: KeyPair, intendedRecipient: PublicKey, sign: Boolean = true): Contract {
     val contractText = randomName()
     val contract = Contract(text = contractText, owner = owner.public, intendedRecipient = intendedRecipient)
     sign.then { contract.sign(owner.private) }
-    val prevHash = blockChain.getPreviousBlock()?.header ?: ""
+    val prevHash = BlockChain.getPreviousBlock()?.header ?: ""
     val block = Block(previousHash = prevHash)
     block.addBlockData(contract)
-    blockChain.add(block)
+    BlockChain.add(block)
     return contract
 }
 
-fun signContract(blockChain: BlockChain, contract: Contract, signer: PrivateKey) : SignedContract {
+fun signContract(contract: Contract, signer: PrivateKey) : SignedContract {
     val contractId = contract.id
     val signedContract = SignedContract(contractId, signedBy = signer)
-    val prevHash = blockChain.getPreviousBlock()?.header ?: ""
+    val prevHash = BlockChain.getPreviousBlock()?.header ?: ""
     val block2 = Block(previousHash = prevHash)
     block2.addBlockData(signedContract)
-    blockChain.add(block2)
+    BlockChain.add(block2)
     return signedContract
 }

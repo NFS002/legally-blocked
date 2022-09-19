@@ -8,12 +8,10 @@ import java.security.KeyPair
 
 class BlockChainTest {
 
-    lateinit var blockChain: BlockChain
     lateinit var keyPair: KeyPair
 
     @Before
     fun beforeTest() {
-        blockChain = BlockChain()
         keyPair = newKeypair()
     }
 
@@ -22,6 +20,6 @@ class BlockChainTest {
      */
     @Test
     fun initiallyValid() {
-        assert(blockChain.isValid())
+        assert(BlockChain.isValid())
     }
 }

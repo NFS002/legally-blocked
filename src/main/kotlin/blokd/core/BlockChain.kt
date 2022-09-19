@@ -6,7 +6,7 @@ import blokd.block.Block
 import blokd.extensions.then
 import java.security.SignatureException
 
-class BlockChain {
+object BlockChain {
 
     val blocks: MutableList<Block> = mutableListOf()
     private val difficulty: Int = 2
