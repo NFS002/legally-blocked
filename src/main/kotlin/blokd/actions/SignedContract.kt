@@ -1,18 +1,15 @@
 package blokd.actions
 
-import blokd.core.BlockChain
-import blokd.extensions.hash
 import blokd.extensions.sign
-import blokd.extensions.then
 import blokd.extensions.verifySignature
 import java.security.PrivateKey
 import java.security.PublicKey
 
-class SignedContract(val contractId: String) : BlockData {
+class SignedContract(val contractId: String, signedBy:PrivateKey) : BlockData {
 
-    override var signature: ByteArray = ByteArray(0)
+    override val encoded: String = "${contractId}-signed"
 
-    override val encoded: String = contractId.hash()
+    override var signature = encoded.sign(signedBy)
 
 
     override fun validateSignature(publicKey: PublicKey): Boolean {

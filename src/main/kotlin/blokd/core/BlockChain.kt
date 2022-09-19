@@ -10,7 +10,7 @@ import blokd.core.assets.Token
 import blokd.extensions.then
 import blokd.wallet.Wallet
 import java.security.KeyPairGenerator
-import java.security.PublicKey
+import java.security.SignatureException
 
 class BlockChain {
 
@@ -20,7 +20,6 @@ class BlockChain {
 
     val assets: HashMap<String, Asset> = hashMapOf()
     val contracts: HashMap<String, Contract> = hashMapOf()
-
 
 
     fun isValid(): Boolean {
@@ -87,8 +86,8 @@ class BlockChain {
                         throw java.lang.IllegalArgumentException("Contract not registered")
                     }
 
-                    (!blockData.validateSignature(contract.intendedRecipent)).then {
-                        throw IllegalStateException("Contract signature is invalid")
+                    (!blockData.validateSignature(contract.intendedRecipient)).then {
+                        throw SignatureException("Contract signature is invalid")
                     }
                 }
             }
@@ -119,10 +118,15 @@ class BlockChain {
     }
 
     private fun registerContract(contract: Contract) {
-        val contractId = contract.contractId.toString()
+
+        val contractId = contract.id
 
         if (hasRegisteredContract(contractId = contractId)) {
-            throw java.lang.IllegalArgumentException("Contract '${contract.contractId}' is already registered")
+            throw java.lang.IllegalArgumentException("Contract '${contractId}' is already registered")
+        }
+
+        if (!contract.validateSignature(contract.owner)) {
+            throw SignatureException("Contract was not signed by its initial owner")
         }
 
         contracts.put(contractId, contract)

@@ -8,13 +8,13 @@ import java.security.PublicKey
 import java.time.Instant
 import java.util.UUID
 
-class Contract(val text: String, val intendedRecipent: PublicKey) : BlockData {
+class Contract(val text: String, val owner: PublicKey, val intendedRecipient: PublicKey) : BlockData {
 
     val createdAt:Long = Instant.now().epochSecond
 
-    override var encoded = "$text$createdAt$intendedRecipent".hash()
+    override val encoded = "$text$createdAt$owner$intendedRecipient".hash()
 
-    val contractId = UUID.randomUUID()
+    val id = UUID.nameUUIDFromBytes(encoded.toByteArray()).toString()
 
     override var signature = ByteArray(0)
 
@@ -22,8 +22,6 @@ class Contract(val text: String, val intendedRecipent: PublicKey) : BlockData {
         signature = encoded.sign(privateKey)
         return this
     }
-
-
 
     override fun validateSignature(publicKey: PublicKey): Boolean {
         return encoded.verifySignature(publicKey, signature)
