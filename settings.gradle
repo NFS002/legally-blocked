@@ -8,3 +8,6 @@
  */
 
 rootProject.name = 'blokd'
+
+include ":jsonrpc4kt"
+project(":jsonrpc4kt").projectDir = file("../jsonrpc4kt")

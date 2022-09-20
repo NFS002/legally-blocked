@@ -5,21 +5,18 @@
  * For more details take a look at the 'Building Java & JVM projects' chapter in the Gradle
  * User Manual available at https://docs.gradle.org/7.4/userguide/building_java_projects.html
  */
-
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     id 'org.jetbrains.kotlin.jvm' version '1.5.31'
+
+    id 'java'
 
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
 
     id 'jacoco'
-}
 
-kotlin {
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of("11"))
-    }
+    id 'idea'
 }
 
 test {
@@ -46,23 +43,23 @@ jacocoTestReport {
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
+
+    flatDir {
+        dirs '../jsonrpc4kt'
+    }
+
 }
+
+
 dependencies {
-    // Align versions of all Kotlin components
-    implementation platform('org.jetbrains.kotlin:kotlin-bom')
 
-    // Use the Kotlin JDK 8 standard library.
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation 'io.github.microutils:kotlin-logging-jvm:2.1.23'
 
-    // JSON serialisation
-    implementation 'com.squareup.moshi:moshi-kotlin:1.12.0'
+    implementation 'ch.qos.logback:logback-classic:1.4.0'
 
-    // Reflect API for annotation processing
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.5.31"
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.13.4'
 
-    implementation 'io.github.microutils:kotlin-logging-jvm:2.0.11'
-
-    implementation 'ch.qos.logback:logback-classic:1.2.9'
+    implementation project(":jsonrpc4kt")
 
     // Use the Kotlin test library.
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
@@ -70,7 +67,7 @@ dependencies {
     // Use the Kotlin JUnit integration.
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.1.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
 
 }
 
