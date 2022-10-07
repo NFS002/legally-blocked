@@ -1,8 +1,6 @@
 package blokd.merkle
 
 import blokd.actions.Contract
-import blokd.core.BlockChain
-import blokd.extensions.hash
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

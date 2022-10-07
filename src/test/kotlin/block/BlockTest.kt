@@ -1,8 +1,7 @@
 package blokd.block
 
 import blokd.contract.registerContract
-import blokd.core.BlockChain
-import blokd.merkle.newKeypair
+import blokd.extensions.newKeypair
 import org.junit.Before
 import org.junit.Test
 import java.security.KeyPair

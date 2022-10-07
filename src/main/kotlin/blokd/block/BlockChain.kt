@@ -1,18 +1,24 @@
-package blokd.core
+package blokd.block
 
 import blokd.actions.Contract
 import blokd.actions.SignedContract
-import blokd.block.Block
+import blokd.block.cache.Cache
+import blokd.block.cache.Fcache
+import blokd.block.cache.PCache
+import blokd.extensions.ifTrue
 import blokd.extensions.then
 import java.security.SignatureException
 
 object BlockChain {
 
     val blocks: MutableList<Block> = mutableListOf()
-    private val difficulty: Int = 2
-    private val prefix: String = "0"
+    private const val difficulty: Int = 2
+    private const val prefix: String = "0"
 
     private val contracts: HashMap<String, Contract> = hashMapOf()
+
+    val nextHeight: Int
+    get() = blocks.size
 
 
     fun isValid(): Boolean {
@@ -35,6 +41,21 @@ object BlockChain {
         }
     }
 
+    fun canAccept(block: Block) : Boolean {
+        BlockChain
+        val currHash:String = this.getPreviousBlock()?.header ?:  ""
+        var res = false
+        (block.expectedHeight == this.nextHeight).ifTrue {
+            (block.previousHash.equals(currHash)).ifTrue {
+                // TODO("Check block meets validation rules")
+                add(block)
+                res = isValid()
+                blocks.removeLast()
+            }
+        }
+        return res
+    }
+
     fun add(block: Block): Block {
         val minedBlock = mine(block)
         blocks.add(minedBlock)
@@ -43,7 +64,7 @@ object BlockChain {
 
     private fun mine(block: Block): Block {
         print("Mining: $block... ")
-        block.doPow(this.prefix, this.difficulty)
+        block.doPow(prefix, difficulty)
         process(block)
 
         println("Mined!")
@@ -59,7 +80,7 @@ object BlockChain {
                 is Contract -> registerContract(blockData)
                 is SignedContract -> {
                     val contractId = blockData.contractId
-                    val contract = this.contracts.getOrElse(contractId) {
+                    val contract = contracts.getOrElse(contractId) {
                         throw java.lang.IllegalArgumentException("Contract not registered")
                     }
 
@@ -72,7 +93,7 @@ object BlockChain {
     }
 
     private fun isMined(block: Block): Boolean {
-        return block.header.startsWith(this.prefix.repeat(this.difficulty))
+        return block.header.startsWith(prefix.repeat(difficulty))
     }
 
 
@@ -92,18 +113,16 @@ object BlockChain {
     }
 
     private fun hasRegisteredContract(contractId: String): Boolean {
-        return this.contracts.containsKey(contractId)
+        return contracts.containsKey(contractId)
     }
 
     fun findSigned(contractId: String): SignedContract? {
-        this.contracts.getOrElse(contractId) { throw IllegalStateException("Initial contract was never registered") }
-        this.blocks.forEach { block ->
+        contracts.getOrElse(contractId) { throw IllegalStateException("Initial contract was never registered") }
+        blocks.forEach { block ->
             block.blockData.forEach { blockData ->
-                when (blockData) {
-                    is SignedContract -> {
-                        (blockData.contractId == contractId).then {
-                            return blockData
-                        }
+                (blockData as? SignedContract)?.let {
+                    (blockData.contractId == contractId).then {
+                        return blockData
                     }
                 }
             }
@@ -112,9 +131,6 @@ object BlockChain {
     }
 
     fun getPreviousBlock(): Block? {
-        return (
-                if (blocks.isEmpty()) null
-                else blocks.last()
-                )
+        return blocks.lastOrNull()
     }
 }

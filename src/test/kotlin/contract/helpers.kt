@@ -3,7 +3,7 @@ package blokd.contract
 import blokd.actions.Contract
 import blokd.actions.SignedContract
 import blokd.block.Block
-import blokd.core.BlockChain
+import blokd.block.BlockChain
 import blokd.extensions.then
 import blokd.merkle.randomName
 import java.security.KeyPair

@@ -1,18 +1,11 @@
 package blokd.merkle
 
 import blokd.actions.Contract
-import java.security.KeyPair
-import java.security.KeyPairGenerator
+import blokd.extensions.newKeypair
 import java.util.*
 
 
 fun randomName(): String = UUID.randomUUID().toString()
-
-fun newKeypair() : KeyPair {
-    val generator = KeyPairGenerator.getInstance("RSA")
-    generator.initialize(2048)
-    return generator.generateKeyPair()
-}
 
 fun randomContract(): Contract {
     val keypair1 = newKeypair()

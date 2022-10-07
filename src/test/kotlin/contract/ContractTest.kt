@@ -1,7 +1,7 @@
 package blokd.contract
 
 import blokd.actions.Contract
-import blokd.merkle.newKeypair
+import blokd.extensions.newKeypair
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

@@ -1,7 +1,8 @@
 package blokd.core
 
 
-import blokd.merkle.newKeypair
+import blokd.block.BlockChain
+import blokd.extensions.newKeypair
 import org.junit.Before
 import org.junit.Test
 import java.security.KeyPair

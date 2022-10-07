@@ -1,6 +1,7 @@
 package blokd.block
 
 import blokd.actions.BlockData
+import blokd.actions.Contract
 import blokd.extensions.hash
 import blokd.extensions.id
 import blokd.extensions.sign
@@ -12,7 +13,7 @@ import java.security.PrivateKey
 import java.security.PublicKey
 import java.time.Instant
 
-data class Block(val previousHash: String = BlockChain.getPreviousBlock()?.header ?: "",
+data class Block2(val previousHash: String = BlockChain.getPreviousBlock()?.header ?: "",
                  val expectedHeight: Int = BlockChain.nextHeight) {
 
     @get:JsonIgnore
@@ -25,7 +26,7 @@ data class Block(val previousHash: String = BlockChain.getPreviousBlock()?.heade
 
     private val logger = Logger.getLogger(this::class.java)
 
-    val blockData: MutableList<BlockData> = mutableListOf()
+    val blockData: MutableList<Contract> = mutableListOf()
 
     private val signatures: HashMap<String, ByteArray> = hashMapOf()
 
@@ -34,7 +35,7 @@ data class Block(val previousHash: String = BlockChain.getPreviousBlock()?.heade
         return "$previousHash$timestamp$dt$nonce".hash()
     }
 
-    fun addBlockData(transaction: BlockData): Block {
+    fun addBlockData(transaction: Contract): Block2 {
         this.blockData.add(transaction)
         return this
     }

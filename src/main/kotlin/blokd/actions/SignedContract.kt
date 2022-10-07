@@ -2,10 +2,12 @@ package blokd.actions
 
 import blokd.extensions.sign
 import blokd.extensions.verifySignature
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.security.PrivateKey
 import java.security.PublicKey
 
-class SignedContract(val contractId: String, signedBy:PrivateKey) : BlockData {
+data class SignedContract constructor(@JsonProperty("contractId") val contractId: String, @JsonProperty("signedBy") val signedBy:PrivateKey) : BlockData {
 
     override val encoded: String = "${contractId}-signed"
 
