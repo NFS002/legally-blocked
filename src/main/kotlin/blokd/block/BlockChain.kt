@@ -63,11 +63,8 @@ object BlockChain {
     }
 
     private fun mine(block: Block): Block {
-        print("Mining: $block... ")
         block.doPow(prefix, difficulty)
         process(block)
-
-        println("Mined!")
 
         return block
     }

@@ -2,6 +2,7 @@ package blokd.block
 
 import blokd.contract.registerContract
 import blokd.extensions.newKeypair
+import blokd.extensions.newKeypair2
 import org.junit.Before
 import org.junit.Test
 import java.security.KeyPair
@@ -15,7 +16,7 @@ class BlockTest {
 
     @Before()
     fun before() {
-        keyPairs = (1..10).map { newKeypair() }
+        keyPairs = (1..10).map { newKeypair2() }
     }
 
 

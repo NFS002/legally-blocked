@@ -2,6 +2,7 @@ package blokd.actions
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import blokd.extensions.hash
+import blokd.extensions.id
 import blokd.extensions.sign
 import blokd.extensions.verifySignature
 import com.fasterxml.jackson.annotation.JsonGetter

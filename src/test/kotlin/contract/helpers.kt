@@ -4,7 +4,7 @@ import blokd.actions.Contract
 import blokd.actions.SignedContract
 import blokd.block.Block
 import blokd.block.BlockChain
-import blokd.extensions.then
+import blokd.extensions.*
 import blokd.merkle.randomName
 import java.security.KeyPair
 import java.security.PrivateKey
@@ -33,6 +33,7 @@ fun registerContract(owner: KeyPair, intendedRecipient: PublicKey, sign: Boolean
     block.addBlockData(contract)
     BlockChain.add(block)
     return contract
+
 }
 
 fun signContract(contract: Contract, signer: PrivateKey) : SignedContract {

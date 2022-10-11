@@ -1,5 +1,6 @@
 package blokd.extensions
 
+import org.apache.log4j.Level
 import org.apache.log4j.Logger
 import java.io.File
 import java.io.FileInputStream
@@ -20,7 +21,7 @@ private const val PUBLIC_KEY_FILENAME = "public"
 
 private const val PRIVATE_KEY_FILENAME = "private"
 
-val LOGGER: Logger = Logger.getLogger("blokd.util")
+val LOGGER: Logger = Logger.getLogger("blokd")
 
 val BASE_PROPERTIES = loadBlokdProperties()
 
@@ -69,9 +70,10 @@ fun String.verifySignature(publicKey: PublicKey, signature: ByteArray, algorithm
     rsa.initVerify(publicKey)
     rsa.update(this.toByteArray())
     val res = rsa.verify(signature)
-    LOGGER.debug{ "Verified signature of ${signature.toString().shorten()} with public key " +
-            "${publicKey.encodeToString().shorten()} with result=$res"}
-    return rsa.verify(signature)
+    val logLevel:Level = if (res) Level.DEBUG else Level.WARN
+    LOGGER.log(logLevel,"Verified signature of ${signature.toString().shorten()} with public key " +
+            "${publicKey.encodeToString().shorten()} with result=$res")
+    return res
 }
 
 infix fun String.xor(that: String): String {
@@ -121,14 +123,24 @@ fun Collection<String>.hashList() {
     this.reduce{ acc, v -> (v xor acc).hash()}
 }
 
-fun newKeypair() : KeyPair {
+fun newKeypair(save:Boolean = false) : KeyPair {
     val generator = KeyPairGenerator.getInstance("RSA")
     generator.initialize(2048)
     val keyPair = generator.generateKeyPair()
     LOGGER.debug {
         "Generated new keypair with id=${keyPair.public.id()}"
     }
-    saveKeyPair(keyPair)
+    save.then { saveKeyPair(keyPair) }
+    return keyPair
+}
+
+fun newKeypair2() : KeyPair {
+    val generator = KeyPairGenerator.getInstance("RSA")
+    generator.initialize(2048)
+    val keyPair = generator.generateKeyPair()
+    LOGGER.debug {
+        "Generated new keypair with id=${keyPair.public.id()}"
+    }
     return keyPair
 }
 
@@ -146,7 +158,7 @@ fun saveKeyPair(keyPair: KeyPair) {
 }
 
 fun getOrLoadKeys() : KeyPair {
-    return loadKeyPair() ?: newKeypair()
+    return loadKeyPair() ?: newKeypair(save = true)
 }
 
 private fun loadKeyPair() : KeyPair? {
