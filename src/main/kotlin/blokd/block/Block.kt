@@ -1,48 +1,29 @@
 package blokd.block
 
 import blokd.actions.BlockData
-import blokd.extensions.hash
-import blokd.extensions.id
-import blokd.extensions.sign
-import blokd.extensions.verifySignature
+import blokd.extensions.*
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.apache.log4j.Level
 import org.apache.log4j.Logger
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.time.Instant
 
-data class Block(val previousHash: String = BlockChain.getPreviousBlock()?.header ?: "",
-                 val expectedHeight: Int = BlockChain.nextHeight) {
+data class Block @JsonCreator constructor(
+    @JsonProperty val previousHash: String = BlockChain.getPreviousBlock()?.header ?: "",
+    @JsonProperty val expectedHeight: Int = 0,
+    @JsonProperty val blockData: List<BlockData> = listOf(),
+    @JsonProperty var signatures: HashMap<String, ByteArray> = hashMapOf(),
+    @JsonProperty val nonce:Long = 0,
+    @JsonProperty val timestamp: Long = Instant.now().toEpochMilli(),
+    @JsonProperty val header: String = calculateHeader(blockData, previousHash, expectedHeight, timestamp, nonce)
+) {
 
-    var header: String = ""
 
-    var nonce: Long = 0
-
-    private val timestamp: Long = Instant.now().toEpochMilli()
-
+    @JsonIgnore
     private val logger = Logger.getLogger(this::class.java)
-
-    val blockData: MutableList<BlockData> = mutableListOf()
-
-    var signatures: HashMap<String, ByteArray> = hashMapOf()
-
-    fun calculateHeader(): String {
-        val dt = this.blockData.joinToString(separator = "") { it.encoded }
-        return "$previousHash$timestamp$dt$nonce".hash()
-    }
-
-    fun addBlockData(transaction: BlockData): Block {
-        this.blockData.add(transaction)
-        return this
-    }
-
-    fun doPow(prefix: String, difficulty: Int) {
-        val target: String = prefix.repeat(difficulty)
-        while (!this.header.startsWith(target)) {
-            this.nonce += 1
-        }
-    }
 
 
     fun validate(): Boolean {

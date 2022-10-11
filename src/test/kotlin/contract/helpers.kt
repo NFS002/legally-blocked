@@ -29,8 +29,7 @@ fun registerContract(owner: KeyPair, intendedRecipient: PublicKey, sign: Boolean
     val contract = Contract(text = contractText, owner = owner.public, intendedRecipient = intendedRecipient)
     sign.then { contract.sign(owner.private) }
     val prevHash = BlockChain.getPreviousBlock()?.header ?: ""
-    val block = Block(previousHash = prevHash)
-    block.addBlockData(contract)
+    val block = Block(previousHash = prevHash, blockData = listOf(contract))
     BlockChain.add(block)
     return contract
 
@@ -40,8 +39,7 @@ fun signContract(contract: Contract, signer: PrivateKey) : SignedContract {
     val contractId = contract.id
     val signedContract = SignedContract(contractId, signedBy = signer)
     val prevHash = BlockChain.getPreviousBlock()?.header ?: ""
-    val block2 = Block(previousHash = prevHash)
-    block2.addBlockData(signedContract)
+    val block2 = Block(previousHash = prevHash, blockData = listOf(signedContract))
     BlockChain.add(block2)
     return signedContract
 }

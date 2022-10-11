@@ -2,9 +2,6 @@ package blokd.block
 
 import blokd.actions.Contract
 import blokd.actions.SignedContract
-import blokd.block.cache.Cache
-import blokd.block.cache.Fcache
-import blokd.block.cache.PCache
 import blokd.extensions.ifTrue
 import blokd.extensions.then
 import java.security.SignatureException
@@ -18,22 +15,21 @@ object BlockChain {
     private val contracts: HashMap<String, Contract> = hashMapOf()
 
     val nextHeight: Int
-    get() = blocks.size
+        get() = blocks.size
 
 
     fun isValid(): Boolean {
         when {
             blocks.isEmpty() -> return true
-            blocks.size == 1 -> return blocks[0].header == blocks[0].calculateHeader()
+            blocks.size == 1 -> return blocks[0].header == calculateHeader(blocks[0])
             else -> {
                 for (i in 1 until blocks.size) {
                     val previousBlock = blocks[i - 1]
                     val currentBlock = blocks[i]
 
                     when {
-                        currentBlock.header != currentBlock.calculateHeader() -> return false
-                        currentBlock.previousHash != previousBlock.calculateHeader() -> return false
-                        !(isMined(previousBlock) && isMined(currentBlock)) -> return false
+                        currentBlock.header != calculateHeader(currentBlock) -> return false
+                        currentBlock.previousHash != previousBlock.header -> return false
                     }
                 }
                 return true
@@ -41,9 +37,9 @@ object BlockChain {
         }
     }
 
-    fun canAccept(block: Block) : Boolean {
+    fun canAccept(block: Block): Boolean {
         BlockChain
-        val currHash:String = this.getPreviousBlock()?.header ?:  ""
+        val currHash: String = this.getPreviousBlock()?.header ?: ""
         var res = false
         (block.expectedHeight == this.nextHeight).ifTrue {
             (block.previousHash.equals(currHash)).ifTrue {
@@ -63,9 +59,7 @@ object BlockChain {
     }
 
     private fun mine(block: Block): Block {
-        block.doPow(prefix, difficulty)
         process(block)
-
         return block
     }
 
