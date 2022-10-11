@@ -17,3 +17,11 @@ fun calculateHeader(block:Block): String {
         block.nonce
     )
 }
+
+fun Map<String, ByteArray>.decode() : List<Pair<String, String>> {
+    return this.map { entry -> entry.decode() }
+}
+
+private fun Map.Entry<String, ByteArray>.decode() : Pair<String, String> {
+    return this.key to this.value.decodeToString()
+}

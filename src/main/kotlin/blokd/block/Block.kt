@@ -16,7 +16,7 @@ data class Block @JsonCreator constructor(
     @JsonProperty val expectedHeight: Int = 0,
     @JsonProperty val blockData: List<BlockData> = listOf(),
     @JsonProperty var signatures: HashMap<String, ByteArray> = hashMapOf(),
-    @JsonProperty val nonce:Long = 0,
+    @JsonProperty val nonce: Long = 0,
     @JsonProperty val timestamp: Long = Instant.now().toEpochMilli(),
     @JsonProperty val header: String = calculateHeader(blockData, previousHash, expectedHeight, timestamp, nonce)
 ) {
@@ -28,14 +28,14 @@ data class Block @JsonCreator constructor(
 
     fun validate(): Boolean {
         //TODO("Implement validation rules")
-        return false
+        return true
     }
 
     fun isSignedBy(publicKey: PublicKey, id: () -> String = { publicKey.id() }): Boolean {
         val signature = signatures.get(key = id()) ?: return false
         val res = this.header.verifySignature(publicKey, signature)
         val logLevel: Level = if (res) Level.INFO else Level.WARN
-        logger.log(logLevel, "Block $this is ${if (res) "correctly" else "incorrectly"} signed by ${id()}")
+        logger.log(logLevel, "$this is ${if (res) "correctly" else "incorrectly"} signed by ${id()}")
         return res
     }
 
@@ -46,5 +46,26 @@ data class Block @JsonCreator constructor(
             }
             this.header.sign(privateKey)
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+        other as Block
+        return (
+                other.blockData.equals(this.blockData) &&
+                other.header.equals(this.header) &&
+                other.timestamp.equals(this.timestamp) &&
+                other.nonce.equals(this.nonce) &&
+                other.signatures.decode().equals(this.signatures.decode())
+        )
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+
+    override fun toString(): String {
+        return "Block[header=${header.shorten()},data=${blockData.size}, signatures=${signatures.size}, timestamp=$timestamp, nonce=$nonce]"
     }
 }
